@@ -517,13 +517,23 @@ def do_trans(provider, app_id, app_key, text, tar_lang):
 # return: translated_text, translated_text, translated_text
 # return it 3 times to send result to 3 different textbox.
 # This is a hacking way to let txt2img and img2img get the translated result
-def do_trans_js(provider, app_id, app_key, text, tar_lang): 
+def do_trans_js(provider, app_id, app_key, text, start, end, tar_lang):
     print("Translating requested by js:")
 
-    translated_text = do_trans(provider, app_id, app_key, text, tar_lang)
+    try:
+        start_num = int(start)
+        end_num = int(end)
+    except:
+        start_num = 0
+        end_num = 0
+
+    text_to_trans = text if start_num == end_num else text[start_num:end_num]
+
+    translated_text = do_trans(provider, app_id, app_key, text_to_trans, tar_lang)
+    result_text =  translated_text if start_num == end_num else text[:start_num] + translated_text + text[end_num:]
 
     print("return to both extension tab and txt2img+img2img tab")
-    return [translated_text, translated_text, translated_text]
+    return [result_text, result_text, result_text]
     
 
 
@@ -644,6 +654,8 @@ def on_ui_tabs():
             tar_lang_drop = gr.Dropdown(label="Target Language", choices=tar_langs, value=def_tar_lang, elem_id="pt_tar_lang")
         with gr.Row():
             prompt = gr.Textbox(label="Prompt", lines=3, value="", elem_id="pt_prompt")
+            prompt_trans_start = gr.Textbox(elem_id="pt_prompt_trans_start", interactive=False, visible=False)
+            prompt_trans_end = gr.Textbox(elem_id="pt_prompt_trans_end", interactive=False, visible=False)
             translated_prompt = gr.Textbox(label="Translated Prompt", lines=3, value="", elem_id="pt_translated_prompt")
 
         with gr.Row():
@@ -656,6 +668,8 @@ def on_ui_tabs():
 
         with gr.Row():
             neg_prompt = gr.Textbox(label="Negative Prompt", lines=2, value="", elem_id="pt_neg_prompt")
+            neg_prompt_trans_start = gr.Textbox(elem_id="pt_neg_prompt_trans_start", interactive=False, visible=False)
+            neg_prompt_trans_end = gr.Textbox(elem_id="pt_neg_prompt_trans_end", interactive=False, visible=False)
             translated_neg_prompt = gr.Textbox(label="Translated Negative Prompt", lines=2, value=json.dumps(tar_langs), elem_id="pt_translated_neg_prompt")
 
         with gr.Row():
@@ -688,8 +702,8 @@ def on_ui_tabs():
         trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt, tar_lang_drop], outputs=translated_neg_prompt)
 
         # Click by js
-        trans_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, prompt, translated_neg_prompt], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
-        trans_neg_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, neg_prompt, translated_neg_prompt], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
+        trans_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, prompt, prompt_trans_start, prompt_trans_end, tar_lang_drop], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
+        trans_neg_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, neg_prompt, neg_prompt_trans_start, neg_prompt_trans_end, tar_lang_drop], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
 
         send_prompt_btn.click(do_send_prompt, inputs=translated_prompt, outputs=[txt2img_prompt, img2img_prompt])
         send_neg_prompt_btn.click(do_send_prompt, inputs=translated_neg_prompt, outputs=[txt2img_neg_prompt, img2img_neg_prompt])

@@ -46,6 +46,8 @@ onUiLoaded(() => {
 
     // get extension's tab's component
     let pt_prompt = gradioApp().querySelector("#pt_prompt textarea");
+    let pt_prompt_trans_start = gradioApp().querySelector("#pt_prompt_trans_start textarea");
+    let pt_prompt_trans_end = gradioApp().querySelector("#pt_prompt_trans_end textarea");
     let pt_translated_prompt = gradioApp().querySelector(
         "#pt_translated_prompt textarea"
     );
@@ -56,6 +58,8 @@ onUiLoaded(() => {
     let pt_send_prompt_btn = gradioApp().getElementById("pt_send_prompt_btn");
 
     let pt_neg_prompt = gradioApp().querySelector("#pt_neg_prompt textarea");
+    let pt_neg_prompt_trans_start = gradioApp().querySelector("#pt_neg_prompt_trans_start textarea");
+    let pt_neg_prompt_trans_end = gradioApp().querySelector("#pt_neg_prompt_trans_end textarea");
     let pt_translated_neg_prompt = gradioApp().querySelector(
         "#pt_translated_neg_prompt textarea"
     );
@@ -71,6 +75,14 @@ onUiLoaded(() => {
 
     if (!pt_prompt) {
         console.log("can not find extension's pt_prompt");
+        return;
+    }
+    if (!pt_prompt_trans_start) {
+        console.log("can not find extension's pt_prompt_trans_start");
+        return;
+    }
+    if (!pt_prompt_trans_end) {
+        console.log("can not find extension's pt_prompt_trans_end");
         return;
     }
     if (!pt_translated_prompt) {
@@ -92,6 +104,14 @@ onUiLoaded(() => {
 
     if (!pt_neg_prompt) {
         console.log("can not find extension's pt_neg_prompt");
+        return;
+    }
+    if (!pt_neg_prompt_trans_start) {
+        console.log("can not find extension's pt_neg_prompt_trans_start");
+        return;
+    }
+    if (!pt_neg_prompt_trans_end) {
+        console.log("can not find extension's pt_neg_prompt_trans_end");
         return;
     }
     if (!pt_translated_neg_prompt) {
@@ -248,8 +268,12 @@ onUiLoaded(() => {
 
         //copy prompt to extension tab's prompt
         pt_prompt.value = prompt.value;
+        pt_prompt_trans_start.value = prompt.selectionStart;
+        pt_prompt_trans_end.value = prompt.selectionEnd;
         //trigger event
         pt_prompt.dispatchEvent(new Event("input"));
+        pt_prompt_trans_start.dispatchEvent(new Event("input"));
+        pt_prompt_trans_end.dispatchEvent(new Event("input"));
         //trigger extension tab's translation button
         pt_trans_prompt_js_btn.click();
         //save prompt, which gonna be filled by python side
@@ -265,8 +289,12 @@ onUiLoaded(() => {
 
         //copy prompt to extension tab's prompt
         pt_neg_prompt.value = neg_prompt.value;
+        pt_neg_prompt_trans_start.value = neg_prompt.selectionStart;
+        pt_neg_prompt_trans_end.value = neg_prompt.selectionEnd;
         //trigger events
         pt_neg_prompt.dispatchEvent(new Event("input"));
+        pt_neg_prompt_trans_start.dispatchEvent(new Event("input"));
+        pt_neg_prompt_trans_end.dispatchEvent(new Event("input"));
         //trigger extension tab's translation button
         pt_trans_neg_prompt_js_btn.click();
         //save neg prompt, which gonna be filled by python side
